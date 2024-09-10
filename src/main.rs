@@ -1,7 +1,7 @@
 mod oracle;
 
-use error_chain::error_chain;
 use crate::oracle::providers::Provider;
+use error_chain::error_chain;
 
 error_chain! {
     foreign_links {
