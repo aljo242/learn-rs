@@ -1,0 +1,2 @@
+# learn-rs
+learning rust
