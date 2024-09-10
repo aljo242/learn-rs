@@ -33,6 +33,15 @@ fn is_positive<T: Signed + Debug>(value: &T) -> SignResult {
     }
 }
 
+fn foreach_str<F>(f: F)
+where
+    F: Fn(&'static str),
+{
+    f("Earth");
+    f("Mars");
+    f("Pluto");
+}
+
 fn main() {
     println!("Hello, world!");
 
@@ -42,14 +51,22 @@ fn main() {
         None => {
             panic!("failed to resolve");
         }
-        Some(_b) => n.print(),
+        Some(b) => {
+            if !b {
+                n.print()
+            }
+        }
     }
 
-    match is_positive(&n) {
-        Err(why) => panic!("{}", why),
-        Ok(_res) => n.print(),
+    let mut vv = vec![n];
+    if is_positive(&n).expect("failed to resolve") {
+        n.print();
+        vv.push(n);
     }
 
-    let mut v1 = Vec::new();
-    v1.push(n);
+    foreach_str(|planet| println!("welcome to planet {}", planet));
+
+    for i in  vv {
+        i.print();
+    }
 }
