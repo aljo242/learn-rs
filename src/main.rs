@@ -1,9 +1,9 @@
+use clap::Parser;
 use image::ImageBuffer;
 use num::Complex;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::FromStr;
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -32,8 +32,7 @@ fn main() {
     let upper_left = parse_complex(&args.upper_left).expect("error parsing upper left");
     let lower_right = parse_complex(&args.lower_right).expect("error parsing lower right");
 
-    render(&args.filename, bounds, upper_left, lower_right)
-        .expect("expected valid render");
+    render(&args.filename, bounds, upper_left, lower_right).expect("expected valid render");
 
     println!("wrote output to {}", args.filename)
 }
