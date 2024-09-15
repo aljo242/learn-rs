@@ -1,15 +1,58 @@
+use image::ImageBuffer;
 use num::Complex;
+use std::env;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::FromStr;
 
 fn main() {
     println!("Hello, world!");
+
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() != 5 {
+        eprintln!("Usage: {} FILE PIXELS UPPERLEFT LOWERRIGHT", args[0]);
+        eprintln!(
+            "Example: {} mandle.png 1000x750 -1.20,0.35 -1,0.20",
+            args[0]
+        );
+        std::process::exit(1);
+    }
+
+    let bounds = parse_pair(&args[2], 'x').expect("error parsing dimensions");
+    let upper_left = parse_complex(&args[3]).expect("error parsing upper left");
+    let lower_right = parse_complex(&args[4]).expect("error parsing lower right");
+
+    write_buffer_to_image(&args[1], bounds, upper_left, lower_right)
+        .expect("expected valid render");
+}
+
+fn write_buffer_to_image(
+    filename: &str,
+    bounds: (u32, u32),
+    upper_left: Complex<f64>,
+    lower_right: Complex<f64>,
+) -> image::ImageResult<()> {
+    let buffer = ImageBuffer::from_fn(bounds.0, bounds.1, |x, y| {
+        let point = map_pixel_to_point(bounds, (x, y), upper_left, lower_right);
+
+        match escape_time_check(point, 255) {
+            None => image::Rgb([0u8, 0u8, 0u8]),
+            Some(count) => {
+                let value = 255 - count as u8;
+                image::Rgb([value, value, value])
+            }
+        }
+    });
+
+    buffer.save_with_format(filename, image::ImageFormat::Png)?;
+
+    Ok(())
 }
 
 fn map_pixel_to_point(
-    bounds: (usize, usize),
-    pixel: (usize, usize),
+    bounds: (u32, u32),
+    pixel: (u32, u32),
     upper_left: Complex<f64>,
     lower_right: Complex<f64>,
 ) -> Complex<f64> {
@@ -24,7 +67,7 @@ fn map_pixel_to_point(
     }
 }
 
-fn escape_time_check(c: Complex<f64>, limit: usize) -> Option<usize> {
+fn escape_time_check(c: Complex<f64>, limit: u32) -> Option<u32> {
     let mut z = Complex { re: 0.0, im: 0.0 };
     for i in 0..limit {
         if z.norm_sqr() > 4.0 {

@@ -1,3 +1,9 @@
+build:
+	@cargo build
+
+build-release:
+	@cargo build --release
+
 format:
 	@cargo fmt
 
@@ -9,3 +15,4 @@ lint:
 
 test:
 	@cargo test
+
