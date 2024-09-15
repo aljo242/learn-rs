@@ -1,29 +1,40 @@
 use image::ImageBuffer;
 use num::Complex;
-use std::env;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::FromStr;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Name of the file to output to
+    #[arg(short, long, default_value = "mandle.png")]
+    filename: String,
+
+    /// Dimensions of the output image
+    #[arg(short, long, default_value = "4000x3000")]
+    dimensions: String,
+
+    /// Upper left complex plane coordinate
+    #[arg(short, long, default_value = "-1.20,0.35")]
+    upper_left: String,
+
+    /// Lower right complex plane coordinate
+    #[arg(short, long, default_value = "-1,0.20")]
+    lower_right: String,
+}
 
 fn main() {
     println!("Hello, world!");
 
-    let args: Vec<String> = env::args().collect();
+    let args = Args::parse();
 
-    if args.len() != 5 {
-        eprintln!("Usage: {} FILE PIXELS UPPERLEFT LOWERRIGHT", args[0]);
-        eprintln!(
-            "Example: {} mandle.png 1000x750 -1.20,0.35 -1,0.20",
-            args[0]
-        );
-        std::process::exit(1);
-    }
+    let bounds = parse_pair(&args.dimensions, 'x').expect("error parsing dimensions");
+    let upper_left = parse_complex(&args.upper_left).expect("error parsing upper left");
+    let lower_right = parse_complex(&args.lower_right).expect("error parsing lower right");
 
-    let bounds = parse_pair(&args[2], 'x').expect("error parsing dimensions");
-    let upper_left = parse_complex(&args[3]).expect("error parsing upper left");
-    let lower_right = parse_complex(&args[4]).expect("error parsing lower right");
-
-    write_buffer_to_image(&args[1], bounds, upper_left, lower_right)
+    write_buffer_to_image(&args.filename, bounds, upper_left, lower_right)
         .expect("expected valid render");
 }
 
