@@ -26,19 +26,19 @@ struct Args {
 }
 
 fn main() {
-    println!("Hello, world!");
-
     let args = Args::parse();
 
     let bounds = parse_pair(&args.dimensions, 'x').expect("error parsing dimensions");
     let upper_left = parse_complex(&args.upper_left).expect("error parsing upper left");
     let lower_right = parse_complex(&args.lower_right).expect("error parsing lower right");
 
-    write_buffer_to_image(&args.filename, bounds, upper_left, lower_right)
+    render(&args.filename, bounds, upper_left, lower_right)
         .expect("expected valid render");
+
+    println!("wrote output to {}", args.filename)
 }
 
-fn write_buffer_to_image(
+fn render(
     filename: &str,
     bounds: (u32, u32),
     upper_left: Complex<f64>,
